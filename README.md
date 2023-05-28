@@ -1,7 +1,6 @@
 # Obama-Maze
 ## for my best fren zhogroggers
-rip cldnt find a way to resolve the cors error to use textures and models
-so ur gonna hv to run chrome without cors to open it
+rip cldnt find a way to resolve the cors error to use textures and models so ur gonna hv to run chrome without cors to open it
 
 -- running chrome w/o cors--
 1. create a shortcut of chrome 
