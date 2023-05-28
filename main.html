@@ -1,0 +1,117 @@
+<title>Obama Maze</title>
+
+<style>
+	body{
+		background: black;
+	}
+	@font-face {
+		font-family: "pixel-font";	
+		src: url("fonts/vt323.ttf");
+	}
+
+	*{
+		font-family: "pixel-font";
+	}
+	button:hover{
+		opacity: 0.7;
+	}
+</style>
+
+<!-- libraries -->
+<script src="lib/babylon.max.js"></script>
+<script src="lib/cannon.js"></script>
+<script src="lib/babylonjs.loaders.min.js"></script>
+
+<!-- scripts -->
+<script src="scripts/map.js"></script>
+<script src="scripts/text.js"></script>
+<script src="scripts/gameClass.js"></script>
+<script src="scripts/settings.js"></script>
+<script src="scripts/obama.js"></script>
+<script src="scripts/pathfinding.js"></script>
+<script src="scripts/astar.js"></script>
+<script src="scripts/victory.js"></script>
+
+<canvas id="canvas" style="position: absolute; top:0; right: 0; left:0; bottom:0; margin: auto"></canvas>
+<canvas id="canvas2" style="display:none;position: absolute; top:0; right: 0; left:0; bottom:0; margin: auto; background: url('assets/jumpscare.jpg'); background-size: 100% 100%"></canvas>
+
+<audio id="beatbox" src="assets/beatbox.mp3" loop=true></audio>
+<audio id="jumpscare" src="assets/jumpscare.mp3" onended="Game.ResetGame()"></audio>
+<audio id="gain" src="assets/gain.mp3"></audio>
+
+<script>
+
+	let context
+	let canvas2
+	window.onload = ()=>{
+		canvas2 = document.getElementById("canvas2")
+		canvas2.width = document.documentElement.clientWidth, canvas2.height = document.documentElement.clientHeight
+		context = canvas2.getContext('2d')
+
+		CreateStartUI()
+	}
+
+
+	function Main(){
+
+		if (Game.Ended) return
+
+		Game.Camera.position.y = Game.Settings.POVHeight//+Game.Settings.WallHeight
+		Game.RotateObamiums()
+
+
+		if (Game.GetCollision(Obama)){
+			Game.Ended = true
+			return JumpScare()
+		}
+
+		for (var obamium of Game.Obamiums){
+			if (Game.GetCollision(obamium) && obamium.isEnabled()){
+				obamium.setEnabled(false)
+				Game.ObamiumsCollected++
+				Game.ObamiumCount.innerHTML = `Obamiums: ${Game.ObamiumsCollected}&nbsp`
+
+				document.getElementById("gain").pause()
+				document.getElementById("gain").currentTime = 0
+				document.getElementById("gain").play()
+
+				if (Game.ObamiumsCollected>=Game.Settings.ObamiumsMax) return Victory()
+			}
+		}
+
+		Game.Scene.render()
+	}
+
+
+	function CreateStartUI(){
+
+		container = document.createElement("div")
+		container.style = `position: absolute; left: 0; right: 0; top: 0; bottom: 0; margin: auto;  background: black;`
+		container.style.width = document.documentElement.clientWidth
+		container.style.height = document.documentElement.clientHeight
+
+		document.body.appendChild(container)
+
+		let start_title = document.createElement("div")
+		start_title.style = "position: absolute; left: 0; right: 0; margin: auto; background: none; border: none; color: white; text-align: center; user-select: none"
+		start_title.innerHTML = "Obama Maze"
+		start_title.style.width = parseInt(container.style.width, 10)/3
+		start_title.style.height = parseInt(container.style.height, 10)/4
+		FitText(start_title, 100)
+		start_title.style.bottom = document.documentElement.clientHeight/2
+
+
+		let start_btn = document.createElement("button")
+		start_btn.style = "position: absolute; left: 0; right: 0; margin: auto;text-align: center; color: white; border: none; background: none"
+		start_btn.innerHTML = "Start"
+		start_btn.style.width = parseInt(container.style.width, 10)/3
+		start_btn.style.height = parseInt(container.style.height, 10)/4
+		start_btn.style.top = document.documentElement.clientHeight/2
+		FitText(start_btn, 100)
+		start_btn.onclick = ()=>Game.StartGame()
+
+		Array(start_title, start_btn).forEach(elem=>container.appendChild(elem))
+
+	}
+	
+</script>
